@@ -8,7 +8,7 @@ go get -u github.com/mallbook/commandline
 
 ## Quick Start
 ### Show Help
-```sh
+```
 Usage: commandline-test [-hv] [-c file] [-p prefix]
 
 Options:
@@ -21,10 +21,10 @@ Options:
 ```
 
 ### Usage
-```
+```go
 // Print Version
 if commandline.IsShowVersion() {
-    fmt.Println("version: 1.0.1, build: 2019.03.03 12:17:00)
+    fmt.Println("version: 1.0.1, build: 2019.03.03 12:17:00")
 }
 
 // Get prefix path
