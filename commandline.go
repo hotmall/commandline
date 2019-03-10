@@ -8,35 +8,20 @@ import (
 )
 
 var (
-	h        bool
-	v        bool
-	p        string
-	c        string
-	procName string
-	logPath  string
-	port     int
+	curPath  = filepath.Dir(os.Args[0])
+	procName = filepath.Base(os.Args[0])
+	port     = 32018
+
+	h       = flag.Bool("h", false, "this help")
+	v       = flag.Bool("v", false, "show version and exit")
+	p       = flag.String("p", curPath, "set `prefix` path")
+	c       = flag.String("c", "etc/conf/nginx.conf", "set configuration `file`")
+	logPath = flag.String("logpath", curPath, "set the log `path`")
+	pport   = flag.Int("port", 32018, "set the service listening `port`")
 )
 
 func init() {
-	procName = filepath.Base(os.Args[0])
-	p = filepath.Dir(os.Args[0])
-	logPath = p
-	port = 32018
-
-	flag.BoolVar(&h, "h", false, "this help")
-	flag.BoolVar(&v, "v", false, "show version and exit")
-	flag.StringVar(&p, "p", p, "set `prefix` path")
-	flag.StringVar(&c, "c", "etc/conf/nginx.conf", "set configuration `file`")
-	flag.StringVar(&logPath, "logpath", logPath, "set the log `path`")
-	flag.IntVar(&port, "port", port, "set the service listening `port`")
-
 	flag.Usage = usage
-
-	flag.Parse()
-	if h {
-		flag.Usage()
-		os.Exit(0)
-	}
 }
 
 func usage() {
@@ -48,27 +33,66 @@ Options:
 	flag.PrintDefaults()
 }
 
+// Usage show help
+func Usage() {
+	// In order to be compatible with the parameters of go-check,
+	// flag parsing is moved from init() to each function and parsed when used.
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	flag.Usage()
+	os.Exit(0)
+}
+
+// ProcName return the process name
+func ProcName() string {
+	return procName
+}
+
+// IsShowHelp return if show help
+func IsShowHelp() bool {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *h
+}
+
 // IsShowVersion return show version flag
 func IsShowVersion() bool {
-	return v
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *v
 }
 
 // PrefixPath return prefix path flag
 func PrefixPath() string {
-	return p
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *p
 }
 
 // ConfigFile return configuration file flag
 func ConfigFile() string {
-	return c
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *c
 }
 
 // LogPath return the log path
 func LogPath() string {
-	return logPath
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *logPath
 }
 
 // Port return the service listening port
 func Port() int {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	return port
 }
