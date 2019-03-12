@@ -16,6 +16,7 @@ var (
 	v       = flag.Bool("v", false, "show version and exit")
 	p       = flag.String("p", curPath, "set `prefix` path")
 	c       = flag.String("c", "etc/conf/nginx.conf", "set configuration `file`")
+	signal  = flag.String("s", "", "send `signal` to the process: stop")
 	logPath = flag.String("logpath", curPath, "set the log `path`")
 	pport   = flag.Int("port", 32018, "set the service listening `port`")
 )
@@ -95,4 +96,14 @@ func Port() int {
 		flag.Parse()
 	}
 	return port
+}
+
+// Signal return the signal
+func Signal() (s SignalType, err error) {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
+	err = s.UnmarshalText([]byte(*signal))
+	return
 }
