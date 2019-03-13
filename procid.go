@@ -55,5 +55,20 @@ func Exit() {
 		log.Fatal(err)
 	}
 
-	p.Signal(os.Interrupt)
+	if err = p.Signal(os.Interrupt); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Kill send a SIGKILL signal to the process
+func Kill() {
+	pid := ReadProcID()
+	p, err := os.FindProcess(pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err = p.Signal(os.Kill); err != nil {
+		log.Fatal(err)
+	}
 }
