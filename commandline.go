@@ -16,7 +16,7 @@ var (
 	v       = flag.Bool("v", false, "show version and exit")
 	p       = flag.String("p", curPath, "set `prefix` path")
 	c       = flag.String("c", "etc/conf/nginx.conf", "set configuration `file`")
-	signal  = flag.String("s", "", "send `signal` to the process: stop")
+	signal  = flag.String("s", "", "send `signal` to the process: stop, kill")
 	logPath = flag.String("logpath", curPath, "set the log `path`")
 	pport   = flag.Int("port", 32018, "set the service listening `port`")
 )
@@ -42,7 +42,6 @@ func Usage() {
 		flag.Parse()
 	}
 	flag.Usage()
-	os.Exit(0)
 }
 
 // ProcName return the process name
