@@ -10,7 +10,6 @@ import (
 var (
 	curPath  = filepath.Dir(os.Args[0])
 	procName = filepath.Base(os.Args[0])
-	port     = 32018
 
 	h       = flag.Bool("h", false, "this help")
 	v       = flag.Bool("v", false, "show version and exit")
@@ -18,7 +17,7 @@ var (
 	c       = flag.String("c", "etc/conf/nginx.conf", "set configuration `file`")
 	signal  = flag.String("s", "", "send `signal` to the process: stop, kill")
 	logPath = flag.String("logpath", curPath, "set the log `path`")
-	pport   = flag.Int("port", 32018, "set the service listening `port`")
+	port   = flag.Int("port", 32018, "set the service listening `port`")
 )
 
 func init() {
@@ -47,6 +46,11 @@ func Usage() {
 // ProcName return the process name
 func ProcName() string {
 	return procName
+}
+
+// CurPath return the current path
+func CurPath() string {
+	return curPath
 }
 
 // IsShowHelp return if show help
@@ -94,7 +98,7 @@ func Port() int {
 	if !flag.Parsed() {
 		flag.Parse()
 	}
-	return port
+	return *port
 }
 
 // Signal return the signal
