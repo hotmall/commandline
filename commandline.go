@@ -14,7 +14,7 @@ var (
 	h       = flag.Bool("h", false, "this help")
 	v       = flag.Bool("v", false, "show version and exit")
 	p       = flag.String("p", curPath, "set `prefix` path")
-	c       = flag.String("c", "etc/conf/hot.conf", "set configuration `file`")
+	c       = flag.String("c", "etc/conf/hot.json", "set configuration `file`")
 	signal  = flag.String("s", "", "send `signal` to the process: stop, kill")
 	logPath = flag.String("logpath", curPath, "set the log `path`")
 	port    = flag.Int("port", 32018, "set the service listening `port`")
@@ -26,7 +26,7 @@ func init() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, `
-Usage: %s [-hv] [-c file] [-p prefix] [-logpath path] [-port port]
+Usage: %s [-hv] [-c file] [-p prefix] [-logpath path] [-port port] [-signal stop|kill]
 
 Options:
 `, procName)
