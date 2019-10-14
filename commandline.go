@@ -32,7 +32,7 @@ func init() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, `
-Usage: %s [-hv] [-c file] [-p prefix] [-logpath path] [-port port] [-signal stop|kill]
+Usage: %s [-hv] [-c file] [-p prefix] [-s stop|kill] [-logpath path] [-port port]
 
 Options:
 `, procName)
