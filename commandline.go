@@ -5,18 +5,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
-	prefix   = curPath()
-	procName = filepath.Base(os.Args[0])
+	prefix         = curPath()
+	procName       = filepath.Base(os.Args[0])
+	defaultConfig  = strings.Join([]string{prefix, "etc", "conf", "hot.json"}, string(filepath.Separator))
+	defaultLogPath = strings.Join([]string{prefix, "var", "log"}, string(filepath.Separator))
 
 	h       = flag.Bool("h", false, "this help")
 	v       = flag.Bool("v", false, "show version and exit")
 	p       = flag.String("p", prefix, "set `prefix` path")
-	c       = flag.String("c", "etc/conf/hot.json", "set configuration `file`")
+	c       = flag.String("c", defaultConfig, "set configuration `file`")
 	signal  = flag.String("s", "", "send `signal` to the process: stop, kill")
-	logPath = flag.String("logpath", "var/log", "set the log `path`")
+	logPath = flag.String("logpath", defaultLogPath, "set the log `path`")
 	port    = flag.Int("port", 32018, "set the service listening `port`")
 )
 
@@ -26,6 +29,11 @@ func init() {
 
 	if *h {
 		usage()
+		os.Exit(0)
+	}
+
+	if *v {
+		ShowVersion()
 		os.Exit(0)
 	}
 }

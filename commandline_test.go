@@ -9,12 +9,12 @@ import (
 
 func TestCmdline(t *testing.T) {
 	prefix := commandline.PrefixPath()
-	if strings.Compare(prefix, "/opt/oss/MBK/myapp") != 0 {
+	if strings.Compare(prefix, "/opt/oss/hot/myapp") != 0 {
 		t.Errorf("The prefix path expect /opt/oss/MBK/myapp, but %s\n", prefix)
 	}
 
 	config := commandline.ConfigFile()
-	if strings.Compare(config, "etc/conf/myapp.json") != 0 {
+	if strings.Compare(config, "etc/conf/hot.json") != 0 {
 		t.Errorf("The config expect etc/conf/myapp.json, but %s\n", config)
 	}
 

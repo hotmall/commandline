@@ -1,26 +1,37 @@
 # commandline
 
 ## Installation
+
 You can use `go get` to get the latest version:
-```sh
+
+```shell
 go get -u github.com/mallbook/commandline
 ```
 
 ## Quick Start
+
 ### Show Help
-```
-Usage: commandline-test [-hv] [-c file] [-p prefix]
+
+```shell
+Usage: GitlabDriver [-hv] [-c file] [-p prefix] [-s stop|kill] [-logpath path] [-port port]
 
 Options:
   -c file
-    	set configuration file (default "etc/conf/nginx.conf")
-  -h	this help
+      set configuration file (default "./etc/conf/hot.json")
+  -h  this help
+  -logpath path
+      set the log path (default "./var/log")
   -p prefix
-    	set prefix path (default ".")
-  -v	show version and exit
+      set prefix path (default ".")
+  -port port
+      set the service listening port (default 32018)
+  -s signal
+      send signal to the process: stop, kill
+  -v  show version and exit
 ```
 
 ### Usage
+
 ```go
 // Print Version
 if commandline.IsShowVersion() {
@@ -28,8 +39,8 @@ if commandline.IsShowVersion() {
 }
 
 // Get prefix path
-prefix := commandline.GetPrefixPath()
+prefix := commandline.PrefixPath()
 
 // Get configuration file
-conf := commandline.GetConfigFile()
+conf := commandline.ConfigFile()
 ```
