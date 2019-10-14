@@ -8,20 +8,26 @@ import (
 )
 
 var (
-	curPath  = filepath.Dir(os.Args[0])
+	prefix   = curPath()
 	procName = filepath.Base(os.Args[0])
 
 	h       = flag.Bool("h", false, "this help")
 	v       = flag.Bool("v", false, "show version and exit")
-	p       = flag.String("p", curPath, "set `prefix` path")
+	p       = flag.String("p", prefix, "set `prefix` path")
 	c       = flag.String("c", "etc/conf/hot.json", "set configuration `file`")
 	signal  = flag.String("s", "", "send `signal` to the process: stop, kill")
-	logPath = flag.String("logpath", curPath, "set the log `path`")
+	logPath = flag.String("logpath", "var/log", "set the log `path`")
 	port    = flag.Int("port", 32018, "set the service listening `port`")
 )
 
 func init() {
 	flag.Usage = usage
+	flag.Parse()
+
+	if *h {
+		usage()
+		os.Exit(0)
+	}
 }
 
 func usage() {
@@ -35,12 +41,14 @@ Options:
 
 // Usage show help
 func Usage() {
-	// In order to be compatible with the parameters of go-check,
-	// flag parsing is moved from init() to each function and parsed when used.
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	flag.Usage()
+}
+
+func curPath() string {
+	d := filepath.Dir(os.Args[0])
+	d += string(filepath.Separator) + ".."
+	d = filepath.Clean(d)
+	return d
 }
 
 // ProcName return the process name
@@ -50,63 +58,41 @@ func ProcName() string {
 
 // CurPath return the current path
 func CurPath() string {
-	return curPath
+	return prefix
 }
 
 // IsShowHelp return if show help
 func IsShowHelp() bool {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *h
 }
 
 // IsShowVersion return show version flag
 func IsShowVersion() bool {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *v
 }
 
 // PrefixPath return prefix path flag
 func PrefixPath() string {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *p
 }
 
 // ConfigFile return configuration file flag
 func ConfigFile() string {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *c
 }
 
 // LogPath return the log path
 func LogPath() string {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *logPath
 }
 
 // Port return the service listening port
 func Port() int {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
 	return *port
 }
 
 // Signal return the signal
 func Signal() (s SignalType, err error) {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-
 	err = s.UnmarshalText([]byte(*signal))
 	return
 }
