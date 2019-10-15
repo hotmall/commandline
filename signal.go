@@ -1,9 +1,9 @@
 package commandline
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // SignalType is a signal
@@ -30,18 +30,18 @@ func (s SignalType) String() string {
 }
 
 // UnmarshalText unmarshals text to a signal.
-func (s *SignalType) UnmarshalText(text []byte) error {
+func (s *SignalType) UnmarshalText(text string) error {
 	if s == nil {
 		return errUnmarshalNilSignal
 	}
-	if !s.unmarshalText(text) && !s.unmarshalText(bytes.ToLower(text)) {
+	if !s.unmarshalText(text) && !s.unmarshalText(strings.ToLower(text)) {
 		return fmt.Errorf("Unrecognized signal: %q", text)
 	}
 	return nil
 }
 
-func (s *SignalType) unmarshalText(text []byte) bool {
-	switch string(text) {
+func (s *SignalType) unmarshalText(text string) bool {
+	switch text {
 	case "stop", "STOP":
 		*s = StopSignal
 	case "kill", "KILL":

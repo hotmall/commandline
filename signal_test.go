@@ -3,31 +3,57 @@ package commandline
 import (
 	"testing"
 
-	. "gopkg.in/check.v1"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestSignal(t *testing.T) { TestingT(t) }
+func TestSignal(t *testing.T) {
+	suite.Run(t, new(signalSuite))
+}
 
-type signalSuite struct{}
+type signalSuite struct {
+	suite.Suite
+}
 
-var _ = Suite(&signalSuite{})
+func (ss signalSuite) TestSignal() {
+	*signal = "kill"
+	s, err := Signal()
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), KillSignal, s)
+	}
 
-func (ss signalSuite) TestSignal(c *C) {
-	_, err := Signal()
-	c.Check(err, NotNil)
-	c.Check(err, ErrorMatches, `Unrecognized signal: ""`)
+	*signal = "kILl"
+	s, err = Signal()
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), KillSignal, s)
+	}
+
+	*signal = "KILL"
+	s, err = Signal()
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), KillSignal, s)
+	}
 
 	*signal = "stop"
-	s, err := Signal()
-	c.Check(err, IsNil)
-	c.Check(s, Equals, StopSignal)
+	s, err = Signal()
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), StopSignal, s)
+	}
+
+	*signal = "StoP"
+	s, err = Signal()
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), StopSignal, s)
+	}
 
 	*signal = "STOP"
 	s, err = Signal()
-	c.Check(err, IsNil)
-	c.Check(s, Equals, StopSignal)
+	assert.Nil(ss.T(), err)
+	if assert.NoError(ss.T(), err) {
+		assert.Equal(ss.T(), StopSignal, s)
+	}
 
 	*signal = "stop1"
 	_, err = Signal()
-	c.Check(err, ErrorMatches, `Unrecognized signal: "stop1"`)
+	assert.NotNil(ss.T(), err)
 }

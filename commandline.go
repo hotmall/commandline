@@ -25,17 +25,6 @@ var (
 
 func init() {
 	flag.Usage = usage
-	flag.Parse()
-
-	if *h {
-		usage()
-		os.Exit(0)
-	}
-
-	if *v {
-		ShowVersion()
-		os.Exit(0)
-	}
 }
 
 func usage() {
@@ -71,36 +60,63 @@ func CurPath() string {
 
 // IsShowHelp return if show help
 func IsShowHelp() bool {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	return *h
 }
 
 // IsShowVersion return show version flag
 func IsShowVersion() bool {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	return *v
 }
 
 // PrefixPath return prefix path flag
 func PrefixPath() string {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	return *p
 }
 
 // ConfigFile return configuration file flag
 func ConfigFile() string {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	if *p != prefix && *c == defaultConfig {
+		*c = strings.Join([]string{*p, "etc", "conf", "hot.json"}, string(filepath.Separator))
+	}
 	return *c
 }
 
 // LogPath return the log path
 func LogPath() string {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	if *p != prefix && *logPath == defaultLogPath {
+		*logPath = strings.Join([]string{*p, "var", "log"}, string(filepath.Separator))
+	}
 	return *logPath
 }
 
 // Port return the service listening port
 func Port() int {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 	return *port
 }
 
 // Signal return the signal
 func Signal() (s SignalType, err error) {
-	err = s.UnmarshalText([]byte(*signal))
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	err = s.UnmarshalText(*signal)
 	return
 }
