@@ -3,12 +3,17 @@ package commandline
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCmdline(t *testing.T) {
-	assert.Equal(t, "/opt/oss/hot", PrefixPath())
-	assert.Equal(t, "/opt/oss/hot/etc/conf/hot.json", ConfigFile())
-	assert.Equal(t, "/opt/oss/hot/var/log", LogPath())
-	assert.Equal(t, 32018, Port())
+	Convey("Test commandline", t, func() {
+		Convey("go test -v", func() {
+			port := Port()
+			So(*h, ShouldBeFalse)
+			So(*v, ShouldBeFalse)
+			So(isGoTest, ShouldBeTrue)
+			So(port, ShouldEqual, 32018)
+		})
+	})
 }

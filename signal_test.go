@@ -3,57 +3,59 @@ package commandline
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestSignal(t *testing.T) {
-	suite.Run(t, new(signalSuite))
-}
+	Convey("Test signal", t, func() {
+		Convey("kill", func() {
+			*signal = "kill"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, KillSignal)
+		})
 
-type signalSuite struct {
-	suite.Suite
-}
+		Convey("kILl", func() {
+			*signal = "kILl"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, KillSignal)
+		})
 
-func (ss signalSuite) TestSignal() {
-	*signal = "kill"
-	s, err := Signal()
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), KillSignal, s)
-	}
+		Convey("KILL", func() {
+			*signal = "KILL"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, KillSignal)
+		})
 
-	*signal = "kILl"
-	s, err = Signal()
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), KillSignal, s)
-	}
+		Convey("stop", func() {
+			*signal = "stop"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, StopSignal)
+		})
 
-	*signal = "KILL"
-	s, err = Signal()
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), KillSignal, s)
-	}
+		Convey("StoP", func() {
+			*signal = "StoP"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, StopSignal)
+		})
 
-	*signal = "stop"
-	s, err = Signal()
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), StopSignal, s)
-	}
+		Convey("STOP", func() {
+			*signal = "STOP"
+			s, err := Signal()
+			So(err, ShouldBeNil)
+			So(s, ShouldEqual, StopSignal)
+		})
 
-	*signal = "StoP"
-	s, err = Signal()
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), StopSignal, s)
-	}
-
-	*signal = "STOP"
-	s, err = Signal()
-	assert.Nil(ss.T(), err)
-	if assert.NoError(ss.T(), err) {
-		assert.Equal(ss.T(), StopSignal, s)
-	}
-
-	*signal = "stop1"
-	_, err = Signal()
-	assert.NotNil(ss.T(), err)
+		Convey("stop1", func() {
+			*signal = "stop1"
+			s, err := Signal()
+			So(err.Error(), ShouldEqual, `Unrecognized signal: "stop1"`)
+			// Unrecognized signal repreasents StopSignal
+			So(s, ShouldEqual, StopSignal)
+		})
+	})
 }

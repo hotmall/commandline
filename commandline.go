@@ -11,7 +11,8 @@ import (
 var (
 	prefix         = curPath()
 	procName       = filepath.Base(os.Args[0])
-	defaultConfig  = strings.Join([]string{prefix, "etc", "conf", "hot.json"}, string(filepath.Separator))
+	isGoTest       = false
+	defaultConfig  = strings.Join([]string{prefix, "etc", "conf", "Hotfile"}, string(filepath.Separator))
 	defaultLogPath = strings.Join([]string{prefix, "var", "log"}, string(filepath.Separator))
 
 	h       = flag.Bool("h", false, "this help")
@@ -25,6 +26,11 @@ var (
 
 func init() {
 	flag.Usage = usage
+
+	// Judge if go test command
+	if strings.HasSuffix(procName, ".test") {
+		isGoTest = true
+	}
 }
 
 func usage() {
@@ -60,7 +66,7 @@ func CurPath() string {
 
 // IsShowHelp return if show help
 func IsShowHelp() bool {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	return *h
@@ -68,7 +74,7 @@ func IsShowHelp() bool {
 
 // IsShowVersion return show version flag
 func IsShowVersion() bool {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	return *v
@@ -76,7 +82,7 @@ func IsShowVersion() bool {
 
 // PrefixPath return prefix path flag
 func PrefixPath() string {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	return *p
@@ -84,18 +90,18 @@ func PrefixPath() string {
 
 // ConfigFile return configuration file flag
 func ConfigFile() string {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	if *p != prefix && *c == defaultConfig {
-		*c = strings.Join([]string{*p, "etc", "conf", "hot.json"}, string(filepath.Separator))
+		*c = strings.Join([]string{*p, "etc", "conf", "Hotfile"}, string(filepath.Separator))
 	}
 	return *c
 }
 
 // LogPath return the log path
 func LogPath() string {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	if *p != prefix && *logPath == defaultLogPath {
@@ -106,7 +112,7 @@ func LogPath() string {
 
 // Port return the service listening port
 func Port() int {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	return *port
@@ -114,7 +120,7 @@ func Port() int {
 
 // Signal return the signal
 func Signal() (s SignalType, err error) {
-	if !flag.Parsed() {
+	if !isGoTest && !flag.Parsed() {
 		flag.Parse()
 	}
 	err = s.UnmarshalText(*signal)
