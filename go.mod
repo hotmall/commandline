@@ -1,4 +1,4 @@
-module github.com/mallbook/commandline
+module github.com/hotmall/commandline
 
 go 1.13
 

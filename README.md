@@ -5,7 +5,7 @@
 You can use `go get` to get the latest version:
 
 ```shell
-go get -u github.com/mallbook/commandline
+go get -u github.com/hotmall/commandline
 ```
 
 ## Quick Start
