@@ -15,31 +15,15 @@
 package commandline
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSignal(t *testing.T) {
+func TestProcID(t *testing.T) {
 	assert := assert.New(t)
-	items := []struct {
-		value string
-		want  Signal
-		err   error
-	}{
-		{"stop", STOPSIG, nil},
-		{"STOP", STOPSIG, nil},
-		{"Stop", STOPSIG, nil},
-		{"kill", KILLSIG, nil},
-		{"KILL", KILLSIG, nil},
-		{"KiLL", KILLSIG, nil},
-		{"xxx", 0, errors.New("unkonw signal: xxx")},
-	}
-	for _, item := range items {
-		var s Signal
-		err := s.Set(item.value)
-		assert.Equal(item.err, err)
-		assert.Equal(item.want, s)
-	}
+	ProcName = "TestService"
+	pid1 := writeProcID(LogPath())
+	pid2 := readProcID(LogPath())
+	assert.Equal(pid1, pid2)
 }
