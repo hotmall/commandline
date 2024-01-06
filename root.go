@@ -22,17 +22,17 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 var (
-	ProcName      string // ProcName represents the service name
-	Version       string // Version define software version
-	CommitHash    string // CommitHash represents the Git commit hash at built time
-	BuildDate     string // BuildDate represents the date when this tool was built
-	GoVersion     string // GoVersion represents go version
-	defaultPrefix string // default prefix path
-	isGotest      bool   // Whether go test command
+	ProcName   string // ProcName represents the service name
+	Version    string // Version define software version
+	CommitHash string // CommitHash represents the Git commit hash at built time
+	BuildDate  string // BuildDate represents the date when this tool was built
+	GoVersion  string // GoVersion represents go version
+	isGotest   bool   // Whether go test command
 )
 
 var opts struct {
@@ -48,13 +48,50 @@ func init() {
 	if err != nil {
 		log.Fatalf("[commandline.init] getwd fail, err = %v\n", err)
 	}
-	defaultPrefix = wd
+	opts.prefix = wd
 
-	flag.BoolVar(&opts.help, "h", false, "this help")
-	flag.BoolVar(&opts.version, "v", false, "show version and exit")
-	flag.StringVar(&opts.prefix, "p", defaultPrefix, "set prefix path")
-	flag.Var(&opts.signal, "s", "send signal to a process: stop, kill")
-	flag.IntVar(&opts.port, "port", 53720, "the port listened on")
+	flag.BoolFunc("h", "this help", func(help string) error {
+		if opts.help, err = strconv.ParseBool(help); err != nil {
+			return err
+		}
+		if opts.help {
+			flag.Usage()
+			os.Exit(0)
+		}
+		return nil
+	})
+	flag.BoolFunc("v", "show version and exit", func(version string) error {
+		if opts.version, err = strconv.ParseBool(version); err != nil {
+			return err
+		}
+		if opts.version {
+			showVersion()
+			os.Exit(0)
+		}
+		return nil
+	})
+	flag.Func("p", "set prefix path", func(prefix string) error {
+		opts.prefix = prefix
+		return nil
+	})
+	flag.Func("s", "send signal to a process: stop, kill", func(signal string) error {
+		if err = opts.signal.Set(signal); err != nil {
+			return (err)
+		}
+		if opts.signal == STOPSIG || opts.signal == KILLSIG {
+			exit(LogPath())
+			os.Exit(0)
+		}
+		return nil
+	})
+	flag.Func("port", "the port listened on", func(port string) error {
+		v, err := strconv.ParseInt(port, 0, strconv.IntSize)
+		if err != nil {
+			return err
+		}
+		opts.port = int(v)
+		return nil
+	})
 
 	// Whether go test command
 	baseName := filepath.Base(os.Args[0])
@@ -65,19 +102,6 @@ func init() {
 
 	if !isGotest && !flag.Parsed() {
 		flag.Parse()
-	}
-
-	if opts.help {
-		flag.Usage()
-		os.Exit(0)
-	}
-	if opts.version {
-		showVersion()
-		os.Exit(0)
-	}
-	if opts.signal == STOPSIG || opts.signal == KILLSIG {
-		exit(LogPath())
-		os.Exit(0)
 	}
 }
 
@@ -94,17 +118,17 @@ func Run() {
 		Handler: nil,
 	}
 
-	log.Printf("[cmd.Run] starting server, listen on %s\n", addr)
+	log.Printf("[commandline.Run] starting server, listen on %s\n", addr)
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
-			log.Fatalf("[cmd.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
+			log.Fatalf("[commandline.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
 		}
 	}()
 
 	// Block until interrupt signal is received.
 	quitSignal := <-quitChan
-	log.Println("[cmd.Run] Get signal:", quitSignal)
+	log.Println("[commandline.Run] Get signal:", quitSignal)
 	server.Close()
 }
 
@@ -117,7 +141,7 @@ func PrefixPath() string {
 	// flagParse()
 	p, err := filepath.Abs(opts.prefix)
 	if err != nil {
-		log.Printf("[cmd.PrefixPath] get prefix path fail, prefix=%s, err=%v\n", opts.prefix, err)
+		log.Printf("[commandline.PrefixPath] get prefix path fail, prefix=%s, err=%v\n", opts.prefix, err)
 		p = filepath.Clean(opts.prefix)
 	}
 	return p
