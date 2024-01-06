@@ -34,7 +34,7 @@ func TestPrefixPath(t *testing.T) {
 		{"/foo/bar/./baz", "/foo/bar/baz"},
 	}
 	for _, item := range items {
-		opts.prefix = item.Input
+		SetPrefixPath(item.Input)
 		r := PrefixPath()
 		assert.Equal(item.Output, r)
 	}
@@ -78,4 +78,9 @@ func TestConfigFile(t *testing.T) {
 		expected := filepath.Join(item.Output...)
 		assert.Equal(expected, lp)
 	}
+}
+
+func TestProcName(t *testing.T) {
+	assert := assert.New(t)
+	assert.Equal("commandline.test", ProcName)
 }

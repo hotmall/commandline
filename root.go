@@ -60,6 +60,7 @@ func init() {
 	baseName := filepath.Base(os.Args[0])
 	if strings.HasSuffix(baseName, ".test") {
 		isGotest = true
+		ProcName = baseName
 	}
 
 	if !isGotest && !flag.Parsed() {
@@ -120,6 +121,10 @@ func PrefixPath() string {
 		p = filepath.Clean(opts.prefix)
 	}
 	return p
+}
+
+func SetPrefixPath(prefix string) {
+	opts.prefix = prefix
 }
 
 func LogPath() string {

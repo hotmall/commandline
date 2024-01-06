@@ -22,7 +22,6 @@ import (
 
 func TestProcID(t *testing.T) {
 	assert := assert.New(t)
-	ProcName = "TestService"
 	pid1 := writeProcID(LogPath())
 	pid2 := readProcID(LogPath())
 	assert.Equal(pid1, pid2)
