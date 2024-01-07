@@ -191,5 +191,5 @@ func showVersion() {
 	if strings.HasPrefix(GoVersion, govprefix) {
 		gov = strings.TrimPrefix(GoVersion, govprefix)
 	}
-	fmt.Printf("%s version %s%s builded by %s at %s", ProcName, Version, commit, gov, BuildDate)
+	fmt.Printf("%s version %s%s builded by %s at %s\n", ProcName, Version, commit, gov, BuildDate)
 }
