@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"syscall"
 )
 
 // pidFile return procid file
@@ -43,24 +44,28 @@ func writeProcID(logPath string) int {
 }
 
 // readProcID read procID from xx.pid file
-func readProcID(logPath string) int {
+func readProcID(logPath string) (int, error) {
 	pidFile := pidFile(logPath)
-
 	content, err := os.ReadFile(pidFile)
 	if err != nil {
-		log.Fatalf("[commandline.readProcID] read pid file fail, pidFile=%s, err=%v\n", pidFile, err)
+		log.Printf("[commandline.readProcID] read pid file fail, pidFile=%s, err=%v\n", pidFile, err)
+		return 0, err
 	}
 
 	procID, err := strconv.Atoi(string(content))
 	if err != nil {
-		log.Fatalf("[commandline.readProcID] strconv procID fail, strProcID=%s, err=%v\n", string(content), err)
+		log.Printf("[commandline.readProcID] strconv procID fail, strProcID=%s, err=%v\n", string(content), err)
+		return 0, err
 	}
-	return procID
+	return procID, nil
 }
 
 // exit send a SIGINT(2) signal to the process
 func exit(logPath string) {
-	pid := readProcID(logPath)
+	pid, err := readProcID(logPath)
+	if err != nil {
+		log.Fatalf("[commandline.exit] read procId from pid file fail, logPath=%s, err=%v", logPath, err)
+	}
 	p, err := os.FindProcess(pid)
 	if err != nil {
 		log.Fatalf("[commandline.exit] find process fail, pid=%d, err=%v\n", pid, err)
@@ -69,4 +74,17 @@ func exit(logPath string) {
 	if err = p.Signal(os.Interrupt); err != nil {
 		log.Fatalf("[commandline.exit] send interrupt signal fail, pid=%d, err=%v\n", pid, err)
 	}
+}
+
+func isProcessExists(procId int) bool {
+	p, err := os.FindProcess(procId)
+	if err != nil {
+		log.Printf("[commandline.isProcessExists] find process fail, procId=%d, err=%v\n", procId, err)
+		return false
+	}
+	if err = p.Signal(syscall.Signal(0)); err != nil {
+		log.Printf("[commandline.isProcessExists] send 0 signal fail, procId=%d, err=%v\n", procId, err)
+		return false
+	}
+	return true
 }

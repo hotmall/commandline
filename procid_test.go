@@ -15,6 +15,7 @@
 package commandline
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,6 +24,29 @@ import (
 func TestProcID(t *testing.T) {
 	assert := assert.New(t)
 	pid1 := writeProcID(LogPath())
-	pid2 := readProcID(LogPath())
+	pid2, err := readProcID(LogPath())
+	assert.Nil(err)
 	assert.Equal(pid1, pid2)
+}
+
+func TestIsProcessExists(t *testing.T) {
+	assert := assert.New(t)
+	items := []struct {
+		pid  int
+		want bool
+	}{
+		{100, false},
+		{200, false},
+		{300, false},
+		{400, false},
+	}
+
+	for _, item := range items {
+		ret := isProcessExists(item.pid)
+		assert.Equal(item.want, ret)
+	}
+
+	pid := os.Getpid()
+	ret := isProcessExists(pid)
+	assert.True(ret)
 }

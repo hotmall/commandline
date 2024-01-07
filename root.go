@@ -100,7 +100,7 @@ func init() {
 
 	// Whether go test command
 	baseName := filepath.Base(os.Args[0])
-	if strings.HasSuffix(baseName, ".test") {
+	if strings.HasSuffix(baseName, ".test") || strings.HasPrefix(baseName, "__debug_bin") {
 		isGotest = true
 		ProcName = baseName
 	}
@@ -111,6 +111,16 @@ func init() {
 }
 
 func Run() {
+	// 判断进程是否已经启动，如果已经启动，则退出
+	logPath := LogPath()
+	if pid, err := readProcID(logPath); err == nil {
+		if isProcessExists(pid) {
+			log.Fatalf("[commandline.Run] process(%d) is exists, exit.", pid)
+		}
+	}
+	// 进程实例不存在，再启动
+	writeProcID(logPath)
+
 	// Set up channel on which to send signal notifications.
 	quitChan := make(chan os.Signal, 1)
 	signal.Notify(quitChan, os.Interrupt)
@@ -127,8 +137,6 @@ func Run() {
 		if err != nil {
 			log.Fatalf("[commandline.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
 		}
-		// 服务启动成功写 pid 日志，避免多次启动，procID 被重置的问题
-		writeProcID(LogPath())
 	}()
 
 	// Block until interrupt signal is received.
