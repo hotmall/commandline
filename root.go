@@ -26,6 +26,10 @@ import (
 	"strings"
 )
 
+const (
+	defaultPort = 53720
+)
+
 var (
 	ProcName   string // ProcName represents the service name
 	Version    string // Version define software version
@@ -49,6 +53,7 @@ func init() {
 		log.Fatalf("[commandline.init] getwd fail, err = %v\n", err)
 	}
 	opts.prefix = wd
+	opts.port = defaultPort
 
 	flag.BoolFunc("h", "this help", func(help string) error {
 		if opts.help, err = strconv.ParseBool(help); err != nil {
