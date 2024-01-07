@@ -15,6 +15,7 @@
 package commandline
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -24,6 +25,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -142,16 +144,19 @@ func Run() {
 	// Block until interrupt signal is received.
 	quitSignal := <-quitChan
 	log.Println("[commandline.Run] Get signal:", quitSignal)
-	server.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("[commandline.Run] shutdown server fail, err=%v\n", err)
+	}
 }
 
 func Port() int {
-	// flagParse()
 	return opts.port
 }
 
 func PrefixPath() string {
-	// flagParse()
 	p, err := filepath.Abs(opts.prefix)
 	if err != nil {
 		log.Printf("[commandline.PrefixPath] get prefix path fail, prefix=%s, err=%v\n", opts.prefix, err)
