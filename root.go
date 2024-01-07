@@ -111,8 +111,6 @@ func init() {
 }
 
 func Run() {
-	writeProcID(LogPath())
-
 	// Set up channel on which to send signal notifications.
 	quitChan := make(chan os.Signal, 1)
 	signal.Notify(quitChan, os.Interrupt)
@@ -129,6 +127,8 @@ func Run() {
 		if err != nil {
 			log.Fatalf("[commandline.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
 		}
+		// 服务启动成功写 pid 日志，避免多次启动，procID 被重置的问题
+		writeProcID(LogPath())
 	}()
 
 	// Block until interrupt signal is received.
