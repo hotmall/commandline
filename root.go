@@ -177,6 +177,14 @@ func IsGotest() bool {
 }
 
 func showVersion() {
-	fmt.Printf("Version\t\t: v%v\nCommit Hash\t: %v\nBuild Date\t: %v\n\n%v\n",
-		Version, CommitHash, BuildDate, GoVersion)
+	var commit string
+	if len(CommitHash) > 0 {
+		commit = fmt.Sprintf("(commit: %s)", CommitHash)
+	}
+	const govprefix = "go version "
+	var gov string
+	if strings.HasPrefix(GoVersion, govprefix) {
+		gov = strings.TrimPrefix(GoVersion, govprefix)
+	}
+	fmt.Printf("%s version %s%s builded by %s at %s", ProcName, Version, commit, gov, BuildDate)
 }
