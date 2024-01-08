@@ -119,7 +119,7 @@ func Run() {
 	logPath := LogPath()
 	if pid, err := readProcID(logPath); err == nil {
 		if isProcessExists(pid) {
-			log.Fatalf("[commandline.Run] process(%d) is exists, exit.\n", pid)
+			log.Fatalf("[commandline.Run] the process(%d) is exists, exit.\n", pid)
 		}
 	}
 	// 进程实例不存在，再启动

@@ -83,7 +83,7 @@ func isProcessExists(procId int) bool {
 		return false
 	}
 	if err = p.Signal(syscall.Signal(0)); err != nil {
-		log.Printf("[commandline.isProcessExists] send 0 signal fail, procId=%d, err=%v\n", procId, err)
+		log.Printf("[commandline.isProcessExists] the process(%d) was already finished, start it.\n", procId)
 		return false
 	}
 	return true
