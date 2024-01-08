@@ -56,8 +56,10 @@ func init() {
 	}
 	opts.prefix = wd
 	opts.port = defaultPort
+	prefixUsage := fmt.Sprintf("set prefix path (default: %s)", opts.prefix)
+	portUsage := fmt.Sprintf("set the port listened on (default: %d)", opts.port)
 
-	flag.BoolFunc("h", "this help", func(help string) error {
+	flag.BoolFunc("h", "show this help", func(help string) error {
 		if opts.help, err = strconv.ParseBool(help); err != nil {
 			return err
 		}
@@ -77,11 +79,11 @@ func init() {
 		}
 		return nil
 	})
-	flag.Func("p", "set prefix path", func(prefix string) error {
+	flag.Func("p", prefixUsage, func(prefix string) error {
 		opts.prefix = prefix
 		return nil
 	})
-	flag.Func("s", "send signal to a process: stop, kill", func(signal string) error {
+	flag.Func("s", "send signal to a process: stop", func(signal string) error {
 		if err = opts.signal.Set(signal); err != nil {
 			return (err)
 		}
@@ -91,7 +93,7 @@ func init() {
 		}
 		return nil
 	})
-	flag.Func("port", "the port listened on", func(port string) error {
+	flag.Func("port", portUsage, func(port string) error {
 		v, err := strconv.ParseInt(port, 0, strconv.IntSize)
 		if err != nil {
 			return err
@@ -117,7 +119,7 @@ func Run() {
 	logPath := LogPath()
 	if pid, err := readProcID(logPath); err == nil {
 		if isProcessExists(pid) {
-			log.Fatalf("[commandline.Run] process(%d) is exists, exit.", pid)
+			log.Fatalf("[commandline.Run] process(%d) is exists, exit.\n", pid)
 		}
 	}
 	// 进程实例不存在，再启动

@@ -64,7 +64,7 @@ func readProcID(logPath string) (int, error) {
 func exit(logPath string) {
 	pid, err := readProcID(logPath)
 	if err != nil {
-		log.Fatalf("[commandline.exit] read procId from pid file fail, logPath=%s, err=%v", logPath, err)
+		log.Fatalf("[commandline.exit] read procId from pid file fail, logPath=%s, err=%v\n", logPath, err)
 	}
 	p, err := os.FindProcess(pid)
 	if err != nil {
