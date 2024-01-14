@@ -16,6 +16,7 @@ package commandline
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -25,7 +26,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -114,12 +114,43 @@ func init() {
 	}
 }
 
+// Run listens on the TCP network address srv.Addr and then
+// calls Serve to handle requests on incoming connections.
+// Accepted connections are configured to enable TCP keep-alives.
 func Run() {
+	addr := fmt.Sprintf("localhost:%d", opts.port)
+	server := &http.Server{
+		Addr:    addr,
+		Handler: nil,
+	}
+	defer func() {
+		if err := server.Shutdown(context.Background()); err != nil {
+			log.Printf("[commandline.Run] shutdown server fail, addr=%s, err=%v\n", addr, err)
+		} else {
+			log.Printf("[commandline.Run] shutdown server success, addr=%s\n", addr)
+		}
+	}()
+
+	RunAs(addr, func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			if errors.Is(err, http.ErrServerClosed) {
+				log.Printf("[commandline.Run] http server closed, addr=%s", addr)
+			} else {
+				log.Fatalf("[commandline.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
+			}
+		}
+	})
+}
+
+// RunAs calls fn to listens on the TCP network address addr then
+// to handle requests on incoming connections.
+func RunAs(addr string, fn func()) {
 	// 判断进程是否已经启动，如果已经启动，则退出
 	logPath := LogPath()
 	if pid, err := readProcID(logPath); err == nil {
 		if isProcessExists(pid) {
-			log.Fatalf("[commandline.Run] the process(%d) is exists, exit.\n", pid)
+			log.Fatalf("[commandline.RunAs] the process(%d) is exists, exit.\n", pid)
 		}
 	}
 	// 进程实例不存在，再启动
@@ -129,29 +160,13 @@ func Run() {
 	quitChan := make(chan os.Signal, 1)
 	signal.Notify(quitChan, os.Interrupt)
 
-	addr := fmt.Sprintf("localhost:%d", opts.port)
-	server := &http.Server{
-		Addr:    addr,
-		Handler: nil,
-	}
+	log.Printf("[commandline.RunAs] starting server, listen on %s\n", addr)
 
-	log.Printf("[commandline.Run] starting server, listen on %s\n", addr)
-	go func() {
-		err := server.ListenAndServe()
-		if err != nil {
-			log.Fatalf("[commandline.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
-		}
-	}()
+	go fn()
 
 	// Block until interrupt signal is received.
 	quitSignal := <-quitChan
-	log.Println("[commandline.Run] Get signal:", quitSignal)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("[commandline.Run] shutdown server fail, err=%v\n", err)
-	}
+	log.Println("[commandline.RunAs] Get signal:", quitSignal)
 }
 
 func Port() int {
