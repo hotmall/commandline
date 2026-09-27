@@ -16,6 +16,7 @@ package commandline
 
 import (
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,4 +50,48 @@ func TestIsProcessExists(t *testing.T) {
 	pid := os.Getpid()
 	ret := isProcessExists(pid)
 	assert.True(ret)
+}
+
+func TestIsProcIDOfService(t *testing.T) {
+	assert := assert.New(t)
+	pid := os.Getpid()
+
+	old := ProcName
+	defer func() { ProcName = old }()
+
+	// 非 Linux 平台（无 /proc）时退化为仅判断存活
+	if _, err := os.Stat("/proc"); err != nil {
+		ProcName = "definitely_not_the_current_process_marker"
+		assert.True(isProcIDOfService(pid))
+		return
+	}
+
+	// Linux：当前进程命令行不包含该标记 → 判定为不属于本服务（模拟 PID 被复用）
+	ProcName = "definitely_not_the_current_process_marker"
+	assert.False(isProcIDOfService(pid))
+
+	// 恢复真实服务名后应命中
+	ProcName = old
+	assert.True(isProcIDOfService(pid))
+}
+
+func TestRemoveProcID(t *testing.T) {
+	assert := assert.New(t)
+	logPath := LogPath()
+	pidFile := pidFile(logPath)
+
+	// 写入当前进程 PID，removeProcID 应删除该文件
+	writeProcID(logPath)
+	removeProcID(logPath)
+	_, err := os.Stat(pidFile)
+	assert.True(os.IsNotExist(err))
+
+	// 写入其他 PID，removeProcID 不应删除（保护其他进程的 PID 文件）
+	other := 99999
+	os.WriteFile(pidFile, []byte(strconv.Itoa(other)), 0644)
+	removeProcID(logPath)
+	content, err := os.ReadFile(pidFile)
+	assert.Nil(err)
+	assert.Equal(strconv.Itoa(other), string(content))
+	os.Remove(pidFile)
 }

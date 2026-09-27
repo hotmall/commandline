@@ -167,6 +167,9 @@ func RunAs(addr string, fn func()) {
 	// Block until interrupt signal is received.
 	quitSignal := <-quitChan
 	log.Println("[commandline.RunAs] Get signal:", quitSignal)
+
+	// 退出前清理 PID 文件，避免残留导致下次启动误判"实例已存在"
+	removeProcID(logPath)
 }
 
 func Port() int {
